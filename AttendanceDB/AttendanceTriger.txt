@@ -1,0 +1,41 @@
+USE [AttSystem]
+GO
+
+/****** Object:  Trigger [dbo].[StaffMST_Email_trigger]    ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TRIGGER [dbo].[StaffMST_Email_trigger] ON [dbo].[StaffMst]
+AFTER INSERT
+AS
+
+if exists ( select * from StaffMst t 
+    inner join inserted i on i.Email=t.Email and i.SID <> t.SID)
+begin
+    rollback
+    RAISERROR ('Duplicate Data', 16, 1);
+end
+
+GO
+
+/****** Object:  Trigger [dbo].[StaffMST_EmailAppend_trigger]   ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TRIGGER [dbo].[StaffMST_EmailAppend_trigger] ON [dbo].[StaffMst]
+AFTER INSERT
+AS
+
+if exists ( select * from StaffMst t 
+    where t.Email NOT LIKE '%@%')
+begin
+    update StaffMst set Email=Email+'@gmail.com'
+end
+
+GO
